@@ -21,7 +21,8 @@ import { AppService } from './app.service';
         password: configService.get<string>('DB_PASSWORD', ''),
         database: configService.get<string>('DB_DATABASE', 'weekly_report_db'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // Auto schema sync for dev environment
+        migrations: [__dirname + '/migrations/*{.ts,.js}'],
+        synchronize: false,
         autoLoadEntities: true,
         logging: process.env.NODE_ENV === 'development',
       }),
