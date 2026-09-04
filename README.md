@@ -55,6 +55,16 @@ Ensure you have the following installed on your machine:
 
 ---
 
+## 📚 API Documentation (Swagger UI)
+
+Interactive OpenAPI / Swagger UI documentation is available when running the backend:
+
+- **Swagger UI URL**: `http://localhost:3000/api/docs`
+
+You can test all authentication (`/api/auth/register`, `/api/auth/login`, `/api/auth/me`) and project endpoints directly from your browser! To test protected endpoints, click the **Authorize** button in Swagger and enter the `access_token` returned by registration or login.
+
+---
+
 ## 🗄️ Database Migrations
 
 TypeORM migration commands can be executed directly from the **root directory** using npm scripts:
