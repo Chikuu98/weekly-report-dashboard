@@ -55,6 +55,37 @@ Ensure you have the following installed on your machine:
 
 ---
 
+## 🌱 Database Seeding
+
+To populate the MySQL database with initial test data (1 Manager, 4 Team Members, 4 Projects, and 16 past weekly reports spanning all statuses: Draft, Submitted, Needs Correction, Approved), run the seed script:
+
+```bash
+# From root directory
+npm run seed
+
+# OR from backend directory
+cd backend
+npm run seed
+```
+
+### 🔑 Seeded Demo Accounts (Password for all: `password123`)
+
+| Role | Name | Email | Password |
+| :--- | :--- | :--- | :--- |
+| **Manager** | Sarah Jenkins (Manager) | `manager@company.com` | `password123` |
+| **Team Member** | Alice Smith | `alice@company.com` | `password123` |
+| **Team Member** | Bob Johnson | `bob@company.com` | `password123` |
+| **Team Member** | Charlie Davis | `charlie@company.com` | `password123` |
+| **Team Member** | Diana Prince | `diana@company.com` | `password123` |
+
+### 📁 Seeded Projects & Categories
+- **Client A**: Client A Web Portal & E-Commerce (`#3B82F6`)
+- **Internal Tooling**: Internal Automation & Developer Tooling (`#10B981`)
+- **Infrastructure**: Cloud Infrastructure & CI/CD Pipeline (`#8B5CF6`)
+- **Mobile App**: iOS & Android Cross-Platform Mobile App (`#F59E0B`)
+
+---
+
 ## 📚 API Documentation (Swagger UI)
 
 Interactive OpenAPI / Swagger UI documentation is available when running the backend:

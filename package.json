@@ -15,7 +15,8 @@
     "migration:run": "npm --prefix backend run migration:run",
     "migration:generate": "npm --prefix backend run migration:generate",
     "migration:revert": "npm --prefix backend run migration:revert",
-    "migration:create": "npm --prefix backend run migration:create"
+    "migration:create": "npm --prefix backend run migration:create",
+    "seed": "npm --prefix backend run seed"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
