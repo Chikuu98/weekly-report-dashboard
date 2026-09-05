@@ -13,6 +13,9 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { TeamPage } from './pages/TeamPage';
 import { UserManagementPage } from './pages/UserManagementPage';
 import { ReportDetailPage } from './pages/ReportDetailPage';
+import { ManagerReviewPage } from './pages/ManagerReviewPage';
+import { TeamMemberProfilePage } from './pages/TeamMemberProfilePage';
+import { ProfilePage } from './pages/ProfilePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ForbiddenPage } from './pages/ForbiddenPage';
 
@@ -58,12 +61,15 @@ export default function App() {
                 {/* Common Protected Routes */}
                 <Route path="/projects" element={<ProjectsPage />} />
                 <Route path="/reports/:id" element={<ReportDetailPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
 
                 {/* Manager Only Routes */}
                 <Route element={<ManagerRoute />}>
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/reports" element={<DashboardPage />} />
+                  <Route path="/reports/:id/review" element={<ManagerReviewPage />} />
                   <Route path="/team" element={<TeamPage />} />
+                  <Route path="/team/:id" element={<TeamMemberProfilePage />} />
                   <Route path="/users" element={<UserManagementPage />} />
                 </Route>
 
