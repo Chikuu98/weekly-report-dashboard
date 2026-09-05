@@ -111,19 +111,38 @@ export class ReportsService {
       report.project_id = updateReportDto.project_id;
     }
 
-    await this.reportRepository.save(report);
-
     let currentVersion = await this.versionRepository.findOne({
       where: { report_id: report.id, version_number: report.current_version },
     });
 
-    if (!currentVersion) {
+    // If report is in NEEDS_CORRECTION and the current version was previously submitted,
+    // increment version_number to create a new draft version so previous version snapshot is preserved.
+    if (report.status === ReportStatus.NEEDS_CORRECTION && currentVersion?.submitted_at) {
+      const prevVersion = currentVersion;
+      report.current_version += 1;
+      currentVersion = this.versionRepository.create({
+        report_id: report.id,
+        report: report,
+        version_number: report.current_version,
+        tasks_json: prevVersion.tasks_json || [],
+        next_week_tasks: prevVersion.next_week_tasks || '',
+        blockers: prevVersion.blockers || '',
+        key_blocker: prevVersion.key_blocker || null,
+        achievements: prevVersion.achievements || '',
+        key_achievement: prevVersion.key_achievement || null,
+        hours_by_type_json: prevVersion.hours_by_type_json || null,
+        notes: prevVersion.notes || null,
+        submitted_at: undefined,
+      } as Partial<ReportVersion>);
+    } else if (!currentVersion) {
       currentVersion = this.versionRepository.create({
         report_id: report.id,
         report: report,
         version_number: report.current_version,
       } as Partial<ReportVersion>);
     }
+
+    await this.reportRepository.save(report);
 
     if (updateReportDto.tasks_json !== undefined) {
       currentVersion.tasks_json = updateReportDto.tasks_json;
@@ -175,34 +194,29 @@ export class ReportsService {
       throw new BadRequestException(`Report is already in '${report.status}' status`);
     }
 
-    if (report.status === ReportStatus.NEEDS_CORRECTION) {
-      const prevVersion = await this.versionRepository.findOne({
-        where: { report_id: report.id, version_number: report.current_version },
-      });
+    let currentVersion = await this.versionRepository.findOne({
+      where: { report_id: report.id, version_number: report.current_version },
+    });
 
+    // If report was in NEEDS_CORRECTION and a new version wasn't created yet during update:
+    if (report.status === ReportStatus.NEEDS_CORRECTION && currentVersion?.submitted_at) {
+      const prevVersion = currentVersion;
       report.current_version += 1;
-
-      const newVersion = this.versionRepository.create({
+      currentVersion = this.versionRepository.create({
         report_id: report.id,
         report: report,
         version_number: report.current_version,
-        tasks_json: prevVersion?.tasks_json || [],
-        next_week_tasks: prevVersion?.next_week_tasks || '',
-        blockers: prevVersion?.blockers || '',
-        key_blocker: prevVersion?.key_blocker || null,
-        achievements: prevVersion?.achievements || '',
-        key_achievement: prevVersion?.key_achievement || null,
-        hours_by_type_json: prevVersion?.hours_by_type_json || null,
-        notes: prevVersion?.notes || null,
+        tasks_json: prevVersion.tasks_json || [],
+        next_week_tasks: prevVersion.next_week_tasks || '',
+        blockers: prevVersion.blockers || '',
+        key_blocker: prevVersion.key_blocker || null,
+        achievements: prevVersion.achievements || '',
+        key_achievement: prevVersion.key_achievement || null,
+        hours_by_type_json: prevVersion.hours_by_type_json || null,
+        notes: prevVersion.notes || null,
         submitted_at: new Date(),
       } as Partial<ReportVersion>);
-
-      await this.versionRepository.save(newVersion);
     } else {
-      let currentVersion = await this.versionRepository.findOne({
-        where: { report_id: report.id, version_number: report.current_version },
-      });
-
       if (!currentVersion) {
         currentVersion = this.versionRepository.create({
           report_id: report.id,
@@ -214,10 +228,10 @@ export class ReportsService {
           achievements: '',
         } as Partial<ReportVersion>);
       }
-
       currentVersion.submitted_at = new Date();
-      await this.versionRepository.save(currentVersion);
     }
+
+    await this.versionRepository.save(currentVersion);
 
     report.status = ReportStatus.SUBMITTED;
     await this.reportRepository.save(report);
