@@ -8,6 +8,7 @@ import {
   FolderKanban,
   Users,
   UserCog,
+  User,
   PlusCircle,
   Sparkles,
 } from 'lucide-react';
@@ -73,6 +74,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   <UserCog className="w-4 h-4" />
                   User Management
                 </NavLink>
+                <NavLink to="/profile" onClick={onClose} className={linkClass}>
+                  <User className="w-4 h-4" />
+                  My Profile
+                </NavLink>
               </>
             ) : (
               <>
@@ -87,6 +92,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 <NavLink to="/projects" onClick={onClose} className={linkClass}>
                   <FolderKanban className="w-4 h-4" />
                   Projects
+                </NavLink>
+                <NavLink to="/profile" onClick={onClose} className={linkClass}>
+                  <User className="w-4 h-4" />
+                  My Profile
                 </NavLink>
               </>
             )}

@@ -85,4 +85,47 @@ export class AuthService {
     const { password_hash: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+
+  async updateProfile(userId: number, updateDto: { name?: string; email?: string }) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (updateDto.name) {
+      user.name = updateDto.name.trim();
+    }
+    if (updateDto.email) {
+      const emailClean = updateDto.email.toLowerCase().trim();
+      if (emailClean !== user.email) {
+        const existing = await this.userRepository.findOne({ where: { email: emailClean } });
+        if (existing) {
+          throw new ConflictException('User with this email already exists');
+        }
+        user.email = emailClean;
+      }
+    }
+
+    const savedUser = await this.userRepository.save(user);
+    const { password_hash: _, ...userWithoutPassword } = savedUser;
+    return userWithoutPassword;
+  }
+
+  async changePassword(userId: number, currentPassword: string, newPassword: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password_hash = await bcrypt.hash(newPassword, salt);
+    await this.userRepository.save(user);
+
+    return { message: 'Password changed successfully' };
+  }
 }
