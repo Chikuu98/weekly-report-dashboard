@@ -44,6 +44,19 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Database Seeding
+
+To populate the MySQL database with 1 Manager user, 4 Team Member users, 4 Projects, and 16 past weekly reports across all statuses, run:
+
+```bash
+$ npm run seed
+```
+
+### Seeded Credentials (Password for all: `password123`)
+- Manager: `manager@company.com`
+- Team Members: `alice@company.com`, `bob@company.com`, `charlie@company.com`, `diana@company.com`
+```
+
 ## Run tests
 
 ```bash
