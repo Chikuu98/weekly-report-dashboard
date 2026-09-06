@@ -55,13 +55,13 @@ export const TasksTable: React.FC<TasksTableProps> = ({
   const getStatusIcon = (status: TaskStatus) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+        return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
       case 'in_progress':
-        return <Clock className="w-4 h-4 text-sky-400" />;
+        return <Clock className="w-4 h-4 text-primary-500" />;
       case 'blocked':
-        return <AlertCircle className="w-4 h-4 text-amber-400" />;
+        return <AlertCircle className="w-4 h-4 text-amber-500" />;
       default:
-        return <Circle className="w-4 h-4 text-slate-500" />;
+        return <Circle className="w-4 h-4 text-zinc-400" />;
     }
   };
 
@@ -69,13 +69,13 @@ export const TasksTable: React.FC<TasksTableProps> = ({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-base font-semibold text-white flex items-center gap-2">
+          <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
             Tasks Completed & Work Breakdown
-            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-sky-400 border border-slate-700 font-mono">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20 font-mono">
               {tasks.length} {tasks.length === 1 ? 'Task' : 'Tasks'}
             </span>
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
             Specify task details, planned vs actual progress %, effort spent, and deliverables.
           </p>
         </div>
@@ -83,7 +83,7 @@ export const TasksTable: React.FC<TasksTableProps> = ({
           <button
             type="button"
             onClick={addTask}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-semibold transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary-500/10 hover:bg-primary-500/20 text-primary-600 dark:text-primary-400 border border-primary-500/30 text-xs font-semibold transition-all"
           >
             <Plus className="w-4 h-4" />
             Add Task Row
@@ -91,10 +91,10 @@ export const TasksTable: React.FC<TasksTableProps> = ({
         )}
       </div>
 
-      <div className="overflow-x-auto border border-slate-800 rounded-2xl bg-slate-900/60 shadow-xl">
+      <div className="overflow-x-auto border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-900/60 shadow-sm">
         <table className="w-full text-left text-xs border-collapse min-w-[900px]">
           <thead>
-            <tr className="bg-slate-900/90 text-slate-400 border-b border-slate-800 font-semibold uppercase tracking-wider text-[11px]">
+            <tr className="bg-zinc-50 dark:bg-zinc-900/90 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 font-semibold uppercase tracking-wider text-[11px]">
               <th className="py-3 px-3 w-[260px]">Task Name & Description</th>
               <th className="py-3 px-2 w-[110px]">Priority</th>
               <th className="py-3 px-2 w-[120px]">Status</th>
@@ -104,16 +104,16 @@ export const TasksTable: React.FC<TasksTableProps> = ({
               {!disabled && <th className="py-3 px-2 w-[50px] text-center">Action</th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 text-slate-300">
+          <tbody className="divide-y divide-zinc-200/60 dark:divide-zinc-800/60 text-zinc-800 dark:text-zinc-200">
             {tasks.length === 0 ? (
               <tr>
-                <td colSpan={disabled ? 6 : 7} className="py-8 text-center text-slate-500 italic">
+                <td colSpan={disabled ? 6 : 7} className="py-8 text-center text-zinc-400 dark:text-zinc-500 italic">
                   No tasks added yet. Click "Add Task Row" above to start logging your weekly work.
                 </td>
               </tr>
             ) : (
               tasks.map((task, idx) => (
-                <tr key={task.id || idx} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={task.id || idx} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/30 transition-colors">
                   {/* Task Name */}
                   <td className="p-2 align-top">
                     <input
@@ -122,7 +122,7 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                       value={task.task_name}
                       onChange={(e) => updateTask(task.id, 'task_name', e.target.value)}
                       placeholder="e.g. Implement JWT authentication module"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 disabled:opacity-60"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:opacity-60"
                     />
                   </td>
 
@@ -132,7 +132,7 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                       disabled={disabled}
                       value={task.priority}
                       onChange={(e) => updateTask(task.id, 'priority', e.target.value as TaskPriority)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 disabled:opacity-60 capitalize"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:border-primary-500 disabled:opacity-60 capitalize"
                     >
                       <option value="low">🟢 Low</option>
                       <option value="medium">🔵 Medium</option>
@@ -149,7 +149,7 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                         disabled={disabled}
                         value={task.status}
                         onChange={(e) => updateTask(task.id, 'status', e.target.value as TaskStatus)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 disabled:opacity-60"
+                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:border-primary-500 disabled:opacity-60"
                       >
                         <option value="not_started">Not Started</option>
                         <option value="in_progress">In Progress</option>
@@ -162,7 +162,7 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                   {/* Planned % vs Actual % */}
                   <td className="p-2 align-top space-y-1">
                     <div className="flex items-center justify-between gap-1 text-[11px]">
-                      <span className="text-slate-400">P:</span>
+                      <span className="text-zinc-500 dark:text-zinc-400">P:</span>
                       <input
                         type="number"
                         min="0"
@@ -172,12 +172,12 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                         onChange={(e) =>
                           updateTask(task.id, 'planned_percentage', Math.max(0, Math.min(100, Number(e.target.value))))
                         }
-                        className="w-14 bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-right font-mono text-xs text-slate-300 focus:outline-none focus:border-sky-500 disabled:opacity-60"
+                        className="w-14 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-1.5 py-0.5 text-right font-mono text-xs text-zinc-700 dark:text-zinc-300 focus:outline-none focus:border-primary-500 disabled:opacity-60"
                       />
-                      <span className="text-slate-400">%</span>
+                      <span className="text-zinc-500 dark:text-zinc-400">%</span>
                     </div>
                     <div className="flex items-center justify-between gap-1 text-[11px]">
-                      <span className="text-slate-400 font-medium">A:</span>
+                      <span className="text-zinc-500 dark:text-zinc-400 font-medium">A:</span>
                       <input
                         type="number"
                         min="0"
@@ -187,12 +187,12 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                         onChange={(e) =>
                           updateTask(task.id, 'actual_percentage', Math.max(0, Math.min(100, Number(e.target.value))))
                         }
-                        className="w-14 bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-right font-mono text-xs font-semibold text-emerald-400 focus:outline-none focus:border-emerald-500 disabled:opacity-60"
+                        className="w-14 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-1.5 py-0.5 text-right font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:border-emerald-500 disabled:opacity-60"
                       />
-                      <span className="text-slate-400">%</span>
+                      <span className="text-zinc-500 dark:text-zinc-400">%</span>
                     </div>
                     {/* Progress Bar preview */}
-                    <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-800">
+                    <div className="w-full bg-zinc-100 dark:bg-zinc-950 rounded-full h-1.5 overflow-hidden border border-zinc-200 dark:border-zinc-800">
                       <div
                         className="bg-emerald-500 h-full rounded-full transition-all"
                         style={{ width: `${Math.max(0, Math.min(100, task.actual_percentage || 0))}%` }}
@@ -203,7 +203,7 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                   {/* Time Planned vs Spent */}
                   <td className="p-2 align-top space-y-1">
                     <div className="flex items-center justify-between gap-1 text-[11px]">
-                      <span className="text-slate-400">Plan:</span>
+                      <span className="text-zinc-500 dark:text-zinc-400">Plan:</span>
                       <input
                         type="number"
                         min="0"
@@ -211,12 +211,12 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                         disabled={disabled}
                         value={task.time_planned}
                         onChange={(e) => updateTask(task.id, 'time_planned', Math.max(0, Number(e.target.value)))}
-                        className="w-14 bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-right font-mono text-xs text-slate-300 focus:outline-none focus:border-sky-500 disabled:opacity-60"
+                        className="w-14 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-1.5 py-0.5 text-right font-mono text-xs text-zinc-700 dark:text-zinc-300 focus:outline-none focus:border-primary-500 disabled:opacity-60"
                       />
-                      <span className="text-slate-400">hrs</span>
+                      <span className="text-zinc-500 dark:text-zinc-400">hrs</span>
                     </div>
                     <div className="flex items-center justify-between gap-1 text-[11px]">
-                      <span className="text-slate-400">Spent:</span>
+                      <span className="text-zinc-500 dark:text-zinc-400">Spent:</span>
                       <input
                         type="number"
                         min="0"
@@ -224,9 +224,9 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                         disabled={disabled}
                         value={task.time_spent}
                         onChange={(e) => updateTask(task.id, 'time_spent', Math.max(0, Number(e.target.value)))}
-                        className="w-14 bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-right font-mono text-xs font-semibold text-sky-400 focus:outline-none focus:border-sky-500 disabled:opacity-60"
+                        className="w-14 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-1.5 py-0.5 text-right font-mono text-xs font-semibold text-primary-600 dark:text-primary-400 focus:outline-none focus:border-primary-500 disabled:opacity-60"
                       />
-                      <span className="text-slate-400">hrs</span>
+                      <span className="text-zinc-500 dark:text-zinc-400">hrs</span>
                     </div>
                   </td>
 
@@ -238,7 +238,7 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                       value={task.output_deliverable || ''}
                       onChange={(e) => updateTask(task.id, 'output_deliverable', e.target.value)}
                       placeholder="e.g. PR #42 merged, API documentation updated"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-sky-500 disabled:opacity-60"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-primary-500 disabled:opacity-60"
                     />
                   </td>
 
@@ -248,7 +248,7 @@ export const TasksTable: React.FC<TasksTableProps> = ({
                       <button
                         type="button"
                         onClick={() => removeTask(task.id)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                        className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
                         title="Delete task"
                       >
                         <Trash2 className="w-4 h-4" />
