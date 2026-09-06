@@ -139,20 +139,42 @@ npm run dev
 
 ---
 
+## 🤖 AI Chat Assistant (Bonus Feature)
+
+The application integrates an AI-powered conversational engineering assistant using Google's `@google/genai` unified SDK and the `gemini-2.5-flash` model.
+
+### Features
+- **Conversational Q&A for Managers**: Ask natural language questions about team activity, velocity, recurring blockers, workload distribution, and milestone achievements.
+- **Real-Time Database Context**: Dynamically pulls the latest submitted and approved weekly reports with full task deliverables, hours breakdowns, and manager comments.
+- **In-App Floating Chat Widget**: A responsive floating copilot drawer accessible on manager views with quick starter prompts, expand/collapse modes, formatted markdown responses, and session persistence.
+- **Role-Based Access Control**: Fully secured with NestJS `JwtAuthGuard` and `RolesGuard` (`@Roles('manager')`).
+
+---
+
 ## 📁 Repository Structure
 
 ```text
 weekly-report-dashboard/
 ├── backend/                  # NestJS API Backend
 │   ├── src/
+│   │   ├── ai/               # AI Assistant Module (Gemini SDK & Context Aggregator)
+│   │   ├── auth/             # JWT Authentication & Role Guards
 │   │   ├── entities/         # TypeORM Database Entities
 │   │   ├── migrations/       # TypeORM Migration Files
+│   │   ├── projects/         # Projects & Category Management
+│   │   ├── reports/          # Weekly Reports & Review Workflow
+│   │   ├── users/            # User Profiles & Team Management
 │   │   ├── data-source.ts    # TypeORM Data Source Configuration
 │   │   └── main.ts           # Application Entry Point
 │   ├── .env.example          # Environment Variables Template
 │   └── package.json
 ├── frontend/                 # React (Vite + TailwindCSS) Frontend
 │   ├── src/
+│   │   ├── api/              # Axios API Client & Endpoints
+│   │   ├── components/       # Reusable UI & AI ChatWidget
+│   │   ├── context/          # Auth & Toast Contexts
+│   │   ├── pages/            # Manager & Team Member Views
+│   │   └── types/            # TypeScript Interfaces
 │   └── package.json
 ├── package.json              # Root package.json with unified scripts
 └── README.md                 # Project Documentation

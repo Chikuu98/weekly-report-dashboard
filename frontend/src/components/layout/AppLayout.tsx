@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
+import { useAuth } from '../../context/AuthContext';
+import { ChatWidget } from '../ai/ChatWidget';
 
 export const AppLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col">
@@ -15,6 +18,7 @@ export const AppLayout: React.FC = () => {
           <Outlet />
         </div>
       </main>
+      {user?.role === 'manager' && <ChatWidget />}
     </div>
   );
 };
