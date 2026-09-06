@@ -198,7 +198,10 @@ export const ProjectsPage: React.FC = () => {
 
                 <div className="flex items-center gap-2 text-[11px] text-zinc-400 bg-zinc-50 dark:bg-zinc-800/60 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800">
                   <Layers className="w-3.5 h-3.5 text-primary-500" />
-                  <span>{project.reports_count ?? 0} reports tagged</span>
+                  <span>
+                    {project.reports_count ?? 0}{' '}
+                    {project.reports_count === 1 ? 'report' : 'reports'} tagged
+                  </span>
                 </div>
 
                 {isManager && (

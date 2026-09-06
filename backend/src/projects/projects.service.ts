@@ -13,13 +13,19 @@ export class ProjectsService {
   ) {}
 
   async findAll(): Promise<Project[]> {
-    return this.projectRepository.find({
-      order: { created_at: 'DESC' },
-    });
+    return this.projectRepository
+      .createQueryBuilder('project')
+      .loadRelationCountAndMap('project.reports_count', 'project.reports')
+      .orderBy('project.created_at', 'DESC')
+      .getMany();
   }
 
   async findOne(id: number): Promise<Project> {
-    const project = await this.projectRepository.findOne({ where: { id } });
+    const project = await this.projectRepository
+      .createQueryBuilder('project')
+      .loadRelationCountAndMap('project.reports_count', 'project.reports')
+      .where('project.id = :id', { id })
+      .getOne();
     if (!project) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
