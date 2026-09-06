@@ -75,18 +75,18 @@ export const AchievementsList: React.FC<AchievementsListProps> = ({
   };
 
   return (
-    <div className="space-y-3 bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-sm">
+    <div className="space-y-3 bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             <Award className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
               Achievements & Highlights
             </h3>
-            <p className="text-xs text-slate-400">
-              Highlight key accomplishments this week and flag your <span className="text-emerald-400 font-semibold">Key Achievement</span>.
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Highlight key accomplishments this week and flag your <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Key Achievement</span>.
             </p>
           </div>
         </div>
@@ -95,7 +95,7 @@ export const AchievementsList: React.FC<AchievementsListProps> = ({
           <button
             type="button"
             onClick={addItem}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-medium border border-zinc-200 dark:border-zinc-700 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Highlight
@@ -113,7 +113,7 @@ export const AchievementsList: React.FC<AchievementsListProps> = ({
               className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
                 isKey
                   ? 'bg-emerald-500/10 border-emerald-500/40 shadow-sm shadow-emerald-500/5'
-                  : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
+                  : 'bg-zinc-50 dark:bg-zinc-950/70 border-zinc-200 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700'
               }`}
             >
               {/* Radio/Star toggle for Key Achievement */}
@@ -124,11 +124,11 @@ export const AchievementsList: React.FC<AchievementsListProps> = ({
                 title={isKey ? 'Flagged as Key Achievement' : 'Click to flag as Key Achievement'}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
                   isKey
-                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-                    : 'bg-slate-800 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 border border-slate-700'
+                    ? 'bg-emerald-500 text-white dark:text-zinc-950 font-bold shadow-sm'
+                    : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 border border-zinc-200 dark:border-zinc-700'
                 } disabled:opacity-50`}
               >
-                <Star className={`w-3.5 h-3.5 ${isKey ? 'text-slate-950 fill-slate-950' : 'text-emerald-400'}`} />
+                <Star className={`w-3.5 h-3.5 ${isKey ? 'text-white dark:text-zinc-950 fill-current' : 'text-emerald-500'}`} />
                 <span>{isKey ? 'Key Highlight' : 'Flag Key'}</span>
               </button>
 
@@ -139,7 +139,7 @@ export const AchievementsList: React.FC<AchievementsListProps> = ({
                 value={item}
                 onChange={(e) => handleItemChange(idx, e.target.value)}
                 placeholder="e.g. Completed JWT authentication unit test suite ahead of schedule..."
-                className="flex-1 bg-transparent text-xs text-white placeholder-slate-600 focus:outline-none disabled:opacity-60"
+                className="flex-1 bg-transparent text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none disabled:opacity-60"
               />
 
               {/* Remove button */}
@@ -147,7 +147,7 @@ export const AchievementsList: React.FC<AchievementsListProps> = ({
                 <button
                   type="button"
                   onClick={() => removeItem(idx)}
-                  className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  className="p-1 rounded-lg text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -158,9 +158,9 @@ export const AchievementsList: React.FC<AchievementsListProps> = ({
       </div>
 
       {keyAchievement && (
-        <div className="flex items-center gap-2 text-xs text-emerald-400/90 pt-1 font-medium">
-          <Star className="w-3.5 h-3.5 shrink-0 fill-emerald-400" />
-          <span>Key Highlight Flagged: <strong className="text-emerald-300">"{keyAchievement}"</strong></span>
+        <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400/90 pt-1 font-medium">
+          <Star className="w-3.5 h-3.5 shrink-0 fill-current" />
+          <span>Key Highlight Flagged: <strong className="text-emerald-700 dark:text-emerald-300">"{keyAchievement}"</strong></span>
         </div>
       )}
     </div>

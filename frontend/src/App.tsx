@@ -4,28 +4,39 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ProtectedRoute, ManagerRoute, TeamMemberRoute } from './components/auth/ProtectedRoutes';
 import { AppLayout } from './components/layout/AppLayout';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { PersonalReportPage } from './pages/PersonalReportPage';
-import { ReportHistoryPage } from './pages/ReportHistoryPage';
-import { ProjectsPage } from './pages/ProjectsPage';
-import { TeamPage } from './pages/TeamPage';
-import { UserManagementPage } from './pages/UserManagementPage';
-import { ReportDetailPage } from './pages/ReportDetailPage';
-import { ManagerReviewPage } from './pages/ManagerReviewPage';
-import { TeamMemberProfilePage } from './pages/TeamMemberProfilePage';
-import { ProfilePage } from './pages/ProfilePage';
-import { NotFoundPage } from './pages/NotFoundPage';
-import { ForbiddenPage } from './pages/ForbiddenPage';
+
+// Auth Pages
+import { LoginPage } from './pages/auth/LoginPage';
+import { RegisterPage } from './pages/auth/RegisterPage';
+
+// Manager Pages
+import { DashboardPage } from './pages/manager/DashboardPage';
+import { AllSubmissionsPage } from './pages/manager/AllSubmissionsPage';
+import { ManagerReviewPage } from './pages/manager/ManagerReviewPage';
+import { TeamPage } from './pages/manager/TeamPage';
+import { TeamMemberProfilePage } from './pages/manager/TeamMemberProfilePage';
+import { UserManagementPage } from './pages/manager/UserManagementPage';
+
+// Member Pages
+import { PersonalReportPage } from './pages/member/PersonalReportPage';
+import { ReportHistoryPage } from './pages/member/ReportHistoryPage';
+
+// Shared Pages
+import { ProjectsPage } from './pages/shared/ProjectsPage';
+import { ReportDetailPage } from './pages/shared/ReportDetailPage';
+import { ProfilePage } from './pages/shared/ProfilePage';
+
+// Error Pages
+import { NotFoundPage } from './pages/errors/NotFoundPage';
+import { ForbiddenPage } from './pages/errors/ForbiddenPage';
 
 const RootRedirect: React.FC = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
-        <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -66,7 +77,7 @@ export default function App() {
                 {/* Manager Only Routes */}
                 <Route element={<ManagerRoute />}>
                   <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/reports" element={<DashboardPage />} />
+                  <Route path="/reports" element={<AllSubmissionsPage />} />
                   <Route path="/reports/:id/review" element={<ManagerReviewPage />} />
                   <Route path="/team" element={<TeamPage />} />
                   <Route path="/team/:id" element={<TeamMemberProfilePage />} />

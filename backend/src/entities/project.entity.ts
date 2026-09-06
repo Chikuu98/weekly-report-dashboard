@@ -30,4 +30,6 @@ export class Project {
 
   @OneToMany(() => WeeklyReport, (report: WeeklyReport) => report.project)
   reports: WeeklyReport[];
+
+  reports_count?: number;
 }

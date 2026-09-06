@@ -16,7 +16,6 @@ export const BlockersList: React.FC<BlockersListProps> = ({
   onKeyBlockerChange,
   disabled = false,
 }) => {
-  // Parse string into array of items for structured editing
   const [items, setItems] = useState<string[]>([]);
 
   useEffect(() => {
@@ -36,7 +35,6 @@ export const BlockersList: React.FC<BlockersListProps> = ({
     const joined = newItems.filter((i) => i.trim() !== '').join('\n');
     onBlockersChange(joined);
 
-    // If key blocker is removed or not in new items, update key blocker
     if (keyBlocker && !newItems.includes(keyBlocker)) {
       onKeyBlockerChange(newItems.find((i) => i.trim() !== '') || null);
     }
@@ -77,18 +75,18 @@ export const BlockersList: React.FC<BlockersListProps> = ({
   };
 
   return (
-    <div className="space-y-3 bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-sm">
+    <div className="space-y-3 bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
             <AlertCircle className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
               Blockers & Challenges
             </h3>
-            <p className="text-xs text-slate-400">
-              List obstacles faced this week and flag the single <span className="text-amber-400 font-semibold">Key Issue</span>.
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              List obstacles faced this week and flag the single <span className="text-amber-600 dark:text-amber-400 font-semibold">Key Issue</span>.
             </p>
           </div>
         </div>
@@ -97,7 +95,7 @@ export const BlockersList: React.FC<BlockersListProps> = ({
           <button
             type="button"
             onClick={addItem}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-medium border border-zinc-200 dark:border-zinc-700 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Blocker
@@ -115,7 +113,7 @@ export const BlockersList: React.FC<BlockersListProps> = ({
               className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
                 isKey
                   ? 'bg-amber-500/10 border-amber-500/40 shadow-sm shadow-amber-500/5'
-                  : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
+                  : 'bg-zinc-50 dark:bg-zinc-950/70 border-zinc-200 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700'
               }`}
             >
               {/* Radio/Flag toggle for Key Issue */}
@@ -126,11 +124,11 @@ export const BlockersList: React.FC<BlockersListProps> = ({
                 title={isKey ? 'Flagged as Key Issue' : 'Click to flag as Key Issue'}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
                   isKey
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                    : 'bg-slate-800 text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 border border-slate-700'
+                    ? 'bg-amber-500 text-white dark:text-zinc-950 font-bold shadow-sm'
+                    : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 border border-zinc-200 dark:border-zinc-700'
                 } disabled:opacity-50`}
               >
-                <ShieldAlert className={`w-3.5 h-3.5 ${isKey ? 'text-slate-950' : 'text-amber-400'}`} />
+                <ShieldAlert className={`w-3.5 h-3.5 ${isKey ? 'text-white dark:text-zinc-950' : 'text-amber-500'}`} />
                 <span>{isKey ? 'Key Issue' : 'Flag Key'}</span>
               </button>
 
@@ -141,7 +139,7 @@ export const BlockersList: React.FC<BlockersListProps> = ({
                 value={item}
                 onChange={(e) => handleItemChange(idx, e.target.value)}
                 placeholder="e.g. Delayed API specification from third-party vendor..."
-                className="flex-1 bg-transparent text-xs text-white placeholder-slate-600 focus:outline-none disabled:opacity-60"
+                className="flex-1 bg-transparent text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none disabled:opacity-60"
               />
 
               {/* Remove button */}
@@ -149,7 +147,7 @@ export const BlockersList: React.FC<BlockersListProps> = ({
                 <button
                   type="button"
                   onClick={() => removeItem(idx)}
-                  className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  className="p-1 rounded-lg text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -160,9 +158,9 @@ export const BlockersList: React.FC<BlockersListProps> = ({
       </div>
 
       {keyBlocker && (
-        <div className="flex items-center gap-2 text-xs text-amber-400/90 pt-1 font-medium">
+        <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400/90 pt-1 font-medium">
           <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
-          <span>Key Issue Flagged: <strong className="text-amber-300">"{keyBlocker}"</strong></span>
+          <span>Key Issue Flagged: <strong className="text-amber-700 dark:text-amber-300">"{keyBlocker}"</strong></span>
         </div>
       )}
     </div>
