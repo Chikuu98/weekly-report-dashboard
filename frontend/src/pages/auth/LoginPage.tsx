@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
-import { LogIn, Mail, Lock, ArrowRight, CheckCircle2, Sun, Moon } from 'lucide-react';
+import { LogIn, Mail, Lock, CheckCircle2, Sun, Moon } from 'lucide-react';
 import { Button, Input } from '../../components/ui';
 
 export const LoginPage: React.FC = () => {
@@ -113,7 +113,6 @@ export const LoginPage: React.FC = () => {
               size="lg"
               loading={isSubmitting}
               icon={<LogIn className="w-4 h-4" />}
-              iconRight={!isSubmitting ? <ArrowRight className="w-4 h-4" /> : undefined}
             >
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>

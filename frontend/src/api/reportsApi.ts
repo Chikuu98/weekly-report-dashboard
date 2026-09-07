@@ -4,6 +4,8 @@ import {
   CreateReportPayload,
   UpdateReportPayload,
   ReportsPaginatedResponse,
+  ReportQueryParams,
+  DashboardStatsResponse,
 } from '../types/report';
 
 export const reportsApi = {
@@ -27,26 +29,18 @@ export const reportsApi = {
     return response.data;
   },
 
-  getMyReports: async (params?: {
-    page?: number;
-    limit?: number;
-    status?: string;
-    project_id?: number;
-    week_start_date?: string;
-  }): Promise<ReportsPaginatedResponse> => {
+  getMyReports: async (params?: ReportQueryParams): Promise<ReportsPaginatedResponse> => {
     const response = await api.get<ReportsPaginatedResponse>('/reports/my-reports', { params });
     return response.data;
   },
 
-  getAllReports: async (params?: {
-    page?: number;
-    limit?: number;
-    status?: string;
-    project_id?: number;
-    user_id?: number;
-    week_start_date?: string;
-  }): Promise<ReportsPaginatedResponse> => {
+  getAllReports: async (params?: ReportQueryParams): Promise<ReportsPaginatedResponse> => {
     const response = await api.get<ReportsPaginatedResponse>('/reports', { params });
+    return response.data;
+  },
+
+  getDashboardStats: async (params?: ReportQueryParams): Promise<DashboardStatsResponse> => {
+    const response = await api.get<DashboardStatsResponse>('/reports/dashboard-stats', { params });
     return response.data;
   },
 

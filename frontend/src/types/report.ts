@@ -105,3 +105,35 @@ export interface ReportsPaginatedResponse {
   limit: number;
   totalPages: number;
 }
+
+export interface ReportQueryParams {
+  page?: number;
+  limit?: number;
+  status?: string;
+  project_id?: number;
+  user_id?: number;
+  week_start_date?: string;
+  start_date?: string;
+  end_date?: string;
+  search?: string;
+}
+
+export interface DashboardStatsResponse {
+  totalReports: number;
+  submittedCount: number;
+  needsCorrectionCount: number;
+  approvedCount: number;
+  complianceRate: number;
+  totalOpenBlockers: number;
+  availableWeeks: string[];
+  statusDistribution: { name: string; value: number }[];
+  weeklyTrends: { week: string; tasksCompleted: number }[];
+  hoursByType: {
+    category: string;
+    Development: number;
+    Testing: number;
+    Meetings: number;
+    Documentation: number;
+    Other: number;
+  }[];
+}
