@@ -35,7 +35,6 @@ const STATUS_TABS = [
   { id: 'submitted', label: 'Pending Review' },
   { id: 'needs_correction', label: 'Needs Correction' },
   { id: 'approved', label: 'Approved' },
-  { id: 'draft', label: 'Drafts' },
 ];
 
 export const AllSubmissionsPage: React.FC = () => {
@@ -72,6 +71,7 @@ export const AllSubmissionsPage: React.FC = () => {
         limit: pageSize,
         status: statusFilter === 'all' ? undefined : statusFilter,
         project_id: projectIdFilter === 'all' ? undefined : parseInt(projectIdFilter, 10),
+        search: searchMember.trim() || undefined,
         week_start_date: dateFilter || undefined,
       });
 
@@ -85,45 +85,31 @@ export const AllSubmissionsPage: React.FC = () => {
     }
   };
 
-  // Fetch initial project list and stats
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const [projRes, statsRes] = await Promise.all([
-          projectsApi.getProjects(),
-          reportsApi.getAllReports({ limit: 100 }),
-        ]);
-        setProjects(projRes || []);
+  const fetchStatsAndProjects = async () => {
+    try {
+      const [projRes, statsRes] = await Promise.all([
+        projectsApi.getProjects(),
+        reportsApi.getDashboardStats(),
+      ]);
+      setProjects(projRes || []);
+      setStats({
+        total: statsRes.totalReports,
+        pending: statsRes.submittedCount,
+        needsCorrection: statsRes.needsCorrectionCount,
+        approved: statsRes.approvedCount,
+      });
+    } catch {
+      // Soft fail
+    }
+  };
 
-        if (statsRes.data) {
-          const allR = statsRes.data;
-          setStats({
-            total: statsRes.total || allR.length,
-            pending: allR.filter((r) => r.status === 'submitted').length,
-            needsCorrection: allR.filter((r) => r.status === 'needs_correction').length,
-            approved: allR.filter((r) => r.status === 'approved').length,
-          });
-        }
-      } catch {
-        // Soft fail
-      }
-    };
-    fetchInitialData();
+  useEffect(() => {
+    fetchStatsAndProjects();
   }, []);
 
   useEffect(() => {
     fetchReports();
-  }, [page, pageSize, statusFilter, projectIdFilter, dateFilter]);
-
-  // Client-side search filtering if search term entered
-  const filteredReports = searchMember.trim()
-    ? reports.filter((r) => {
-        const name = r.user?.name || '';
-        const email = r.user?.email || '';
-        const q = searchMember.toLowerCase();
-        return name.toLowerCase().includes(q) || email.toLowerCase().includes(q);
-      })
-    : reports;
+  }, [page, pageSize, statusFilter, projectIdFilter, dateFilter, searchMember]);
 
   const formatDate = (dateStr?: string | Date) => {
     if (!dateStr) return 'N/A';
@@ -266,7 +252,7 @@ export const AllSubmissionsPage: React.FC = () => {
           <div className="py-16 flex justify-center">
             <LoadingSpinner message="Fetching report submissions..." />
           </div>
-        ) : filteredReports.length === 0 ? (
+        ) : reports.length === 0 ? (
           <EmptyState
             icon={<FileText className="w-12 h-12" />}
             title="No submissions match your filters"
@@ -289,7 +275,7 @@ export const AllSubmissionsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-zinc-700 dark:text-zinc-300">
-                  {filteredReports.map((report) => {
+                  {reports.map((report) => {
                     const latestVer =
                       report.versions && report.versions.length > 0
                         ? report.versions[report.versions.length - 1]
