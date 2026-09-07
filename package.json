@@ -1,0 +1,24 @@
+{
+  "name": "weekly-report-dashboard-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root package.json to run frontend and backend commands",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "start:backend": "npm --prefix backend run start",
+    "start:prod": "npm --prefix backend run start:prod",
+    "migration:run": "npm --prefix backend run migration:run",
+    "migration:generate": "npm --prefix backend run migration:generate",
+    "migration:revert": "npm --prefix backend run migration:revert",
+    "migration:create": "npm --prefix backend run migration:create",
+    "seed": "npm --prefix backend run seed"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
