@@ -284,6 +284,54 @@ export class ReportsService {
     return this.findOneInternal(report.id);
   }
 
+  private applyFilters(
+    qb: any,
+    query: ReportQueryDto,
+  ) {
+    if (query.user_id) {
+      qb.andWhere('report.user_id = :userId', { userId: query.user_id });
+    }
+
+    if (query.status) {
+      qb.andWhere('report.status = :status', { status: query.status });
+    }
+
+    if (query.project_id) {
+      qb.andWhere('report.project_id = :projectId', { projectId: query.project_id });
+    }
+
+    if (query.week_start_date) {
+      const dateStr = query.week_start_date.includes('T')
+        ? query.week_start_date.split('T')[0]
+        : query.week_start_date;
+      qb.andWhere('(DATE(report.week_start_date) = DATE(:weekStartDate) OR report.week_start_date LIKE :weekLike)', {
+        weekStartDate: dateStr,
+        weekLike: `${dateStr}%`,
+      });
+    }
+
+    if (query.start_date) {
+      const startStr = query.start_date.includes('T') ? query.start_date.split('T')[0] : query.start_date;
+      qb.andWhere('DATE(report.week_start_date) >= DATE(:startDate)', {
+        startDate: startStr,
+      });
+    }
+
+    if (query.end_date) {
+      const endStr = query.end_date.includes('T') ? query.end_date.split('T')[0] : query.end_date;
+      qb.andWhere('DATE(report.week_end_date) <= DATE(:endDate)', {
+        endDate: endStr,
+      });
+    }
+
+    if (query.search && query.search.trim()) {
+      qb.andWhere(
+        '(LOWER(user.name) LIKE :search OR LOWER(user.email) LIKE :search OR LOWER(project.name) LIKE :search)',
+        { search: `%${query.search.trim().toLowerCase()}%` },
+      );
+    }
+  }
+
   async findMyReports(
     user: User,
     query: ReportQueryDto,
@@ -299,19 +347,9 @@ export class ReportsService {
       .leftJoinAndSelect('report.versions', 'versions')
       .leftJoinAndSelect('report.review_comments', 'review_comments')
       .leftJoinAndSelect('review_comments.manager', 'manager')
-      .where('report.user_id = :userId', { userId: user.id });
+      .where('report.user_id = :currentUserId', { currentUserId: user.id });
 
-    if (query.status) {
-      qb.andWhere('report.status = :status', { status: query.status });
-    }
-
-    if (query.project_id) {
-      qb.andWhere('report.project_id = :projectId', { projectId: query.project_id });
-    }
-
-    if (query.week_start_date) {
-      qb.andWhere('report.week_start_date = :weekStartDate', { weekStartDate: query.week_start_date });
-    }
+    this.applyFilters(qb, query);
 
     qb.orderBy('report.week_start_date', 'DESC')
       .addOrderBy('versions.version_number', 'ASC')
@@ -375,21 +413,7 @@ export class ReportsService {
       .leftJoinAndSelect('review_comments.manager', 'manager')
       .where('report.status != :draftStatus', { draftStatus: ReportStatus.DRAFT });
 
-    if (query.user_id) {
-      qb.andWhere('report.user_id = :userId', { userId: query.user_id });
-    }
-
-    if (query.status) {
-      qb.andWhere('report.status = :status', { status: query.status });
-    }
-
-    if (query.project_id) {
-      qb.andWhere('report.project_id = :projectId', { projectId: query.project_id });
-    }
-
-    if (query.week_start_date) {
-      qb.andWhere('report.week_start_date = :weekStartDate', { weekStartDate: query.week_start_date });
-    }
+    this.applyFilters(qb, query);
 
     qb.orderBy('report.week_start_date', 'DESC')
       .addOrderBy('versions.version_number', 'ASC')
@@ -414,6 +438,170 @@ export class ReportsService {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async getDashboardStats(
+    user: User,
+    query: ReportQueryDto,
+  ): Promise<{
+    totalReports: number;
+    submittedCount: number;
+    needsCorrectionCount: number;
+    approvedCount: number;
+    complianceRate: number;
+    totalOpenBlockers: number;
+    availableWeeks: string[];
+    statusDistribution: { name: string; value: number }[];
+    weeklyTrends: { week: string; tasksCompleted: number }[];
+    hoursByType: {
+      category: string;
+      Development: number;
+      Testing: number;
+      Meetings: number;
+      Documentation: number;
+      Other: number;
+    }[];
+  }> {
+    // 1. Fetch all available weeks from DB (excluding drafts for manager)
+    const weeksQb = this.reportRepository
+      .createQueryBuilder('report')
+      .select('DISTINCT report.week_start_date', 'week_start')
+      .orderBy('report.week_start_date', 'DESC');
+
+    if (user.role === UserRole.TEAM_MEMBER) {
+      weeksQb.where('report.user_id = :userId', { userId: user.id });
+    } else {
+      weeksQb.where('report.status != :draftStatus', { draftStatus: ReportStatus.DRAFT });
+    }
+
+    const rawWeeks = await weeksQb.getRawMany();
+    const availableWeeks: string[] = rawWeeks
+      .map((w) => {
+        const val = w.week_start || w.report_week_start || w.report_week_start_date || (Object.values(w)[0] as any);
+        if (!val) return '';
+        if (val instanceof Date) {
+          const year = val.getFullYear();
+          const month = String(val.getMonth() + 1).padStart(2, '0');
+          const day = String(val.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        }
+        const str = String(val);
+        return str.includes('T') ? str.split('T')[0] : str;
+      })
+      .filter(Boolean);
+
+    // 2. Fetch reports matching current filters
+    const statsQb = this.reportRepository
+      .createQueryBuilder('report')
+      .leftJoinAndSelect('report.user', 'user')
+      .leftJoinAndSelect('report.project', 'project')
+      .leftJoinAndSelect('report.versions', 'versions')
+      .leftJoinAndSelect('report.review_comments', 'review_comments');
+
+    if (user.role === UserRole.TEAM_MEMBER) {
+      statsQb.where('report.user_id = :userId', { userId: user.id });
+    } else {
+      statsQb.where('report.status != :draftStatus', { draftStatus: ReportStatus.DRAFT });
+    }
+
+    this.applyFilters(statsQb, query);
+    statsQb.orderBy('report.week_start_date', 'DESC');
+
+    const filteredReports = await statsQb.getMany();
+
+    const totalReports = filteredReports.length;
+    const submittedCount = filteredReports.filter((r) => r.status === ReportStatus.SUBMITTED).length;
+    const needsCorrectionCount = filteredReports.filter((r) => r.status === ReportStatus.NEEDS_CORRECTION).length;
+    const approvedCount = filteredReports.filter((r) => r.status === ReportStatus.APPROVED).length;
+    const complianceRate =
+      totalReports > 0
+        ? Math.round(((submittedCount + approvedCount) / totalReports) * 100)
+        : 100;
+
+    const totalOpenBlockers = filteredReports.reduce((acc, r) => {
+      const latestVer = r.versions && r.versions.length > 0 ? r.versions[r.versions.length - 1] : null;
+      return acc + (latestVer?.key_blocker ? 1 : 0);
+    }, 0);
+
+    const statusCounts = {
+      Approved: approvedCount,
+      'Pending Review': submittedCount,
+      'Needs Correction': needsCorrectionCount,
+    };
+    const statusDistribution = Object.entries(statusCounts)
+      .filter(([_, val]) => val > 0)
+      .map(([name, value]) => ({ name, value }));
+
+    // Weekly Tasks Trend aggregation
+    const trendDataMap: Record<string, { week: string; tasksCompleted: number }> = {};
+    filteredReports.forEach((r) => {
+      const weekLabel =
+        r.week_start_date instanceof Date
+          ? r.week_start_date.toISOString().split('T')[0]
+          : new Date(String(r.week_start_date)).toISOString().split('T')[0];
+      if (!trendDataMap[weekLabel]) {
+        trendDataMap[weekLabel] = { week: weekLabel, tasksCompleted: 0 };
+      }
+      const latestVer = r.versions && r.versions.length > 0 ? r.versions[r.versions.length - 1] : null;
+      if (latestVer?.tasks_json && Array.isArray(latestVer.tasks_json)) {
+        trendDataMap[weekLabel].tasksCompleted += latestVer.tasks_json.filter(
+          (t: any) => t.status === 'completed' || t.actual_percentage === 100,
+        ).length;
+      }
+    });
+    const weeklyTrends = Object.values(trendDataMap).sort((a, b) => (a.week > b.week ? 1 : -1));
+
+    // Hours by type aggregation
+    const hoursTypeMap: Record<
+      string,
+      {
+        category: string;
+        Development: number;
+        Testing: number;
+        Meetings: number;
+        Documentation: number;
+        Other: number;
+      }
+    > = {};
+
+    filteredReports.forEach((r) => {
+      const weekLabel =
+        r.week_start_date instanceof Date
+          ? r.week_start_date.toISOString().split('T')[0]
+          : new Date(String(r.week_start_date)).toISOString().split('T')[0];
+      if (!hoursTypeMap[weekLabel]) {
+        hoursTypeMap[weekLabel] = {
+          category: weekLabel,
+          Development: 0,
+          Testing: 0,
+          Meetings: 0,
+          Documentation: 0,
+          Other: 0,
+        };
+      }
+      const latestVer = r.versions && r.versions.length > 0 ? r.versions[r.versions.length - 1] : null;
+      if (latestVer?.hours_by_type_json) {
+        hoursTypeMap[weekLabel].Development += Number(latestVer.hours_by_type_json.development || 0);
+        hoursTypeMap[weekLabel].Testing += Number(latestVer.hours_by_type_json.testing || 0);
+        hoursTypeMap[weekLabel].Meetings += Number(latestVer.hours_by_type_json.meetings || 0);
+        hoursTypeMap[weekLabel].Documentation += Number(latestVer.hours_by_type_json.documentation || 0);
+        hoursTypeMap[weekLabel].Other += Number(latestVer.hours_by_type_json.other || 0);
+      }
+    });
+    const hoursByType = Object.values(hoursTypeMap).sort((a, b) => (a.category > b.category ? 1 : -1));
+
+    return {
+      totalReports,
+      submittedCount,
+      needsCorrectionCount,
+      approvedCount,
+      complianceRate,
+      totalOpenBlockers,
+      availableWeeks,
+      statusDistribution,
+      weeklyTrends,
+      hoursByType,
     };
   }
 

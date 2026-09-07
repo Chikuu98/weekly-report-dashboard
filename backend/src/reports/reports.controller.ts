@@ -64,6 +64,17 @@ export class ReportsController {
     return this.reportsService.findAll(user, query);
   }
 
+  @ApiOperation({ summary: 'Get aggregated dashboard statistics with filters applied' })
+  @ApiResponse({ status: 200, description: 'Returns aggregated dashboard metrics.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @Get('dashboard-stats')
+  async getDashboardStats(
+    @CurrentUser() user: User,
+    @Query() query: ReportQueryDto,
+  ) {
+    return this.reportsService.getDashboardStats(user, query);
+  }
+
   @ApiOperation({ summary: 'Get single report by ID' })
   @ApiParam({ name: 'id', description: 'Report ID', example: 1 })
   @ApiResponse({ status: 200, description: 'Returns report details.' })
