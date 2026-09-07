@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { WeeklyReport } from './weekly-report.entity';
 import { ReviewComment } from './review-comment.entity';
+import { Project } from './project.entity';
 
 export enum UserRole {
   TEAM_MEMBER = 'team_member',
@@ -46,4 +48,7 @@ export class User {
 
   @OneToMany(() => ReviewComment, (comment: ReviewComment) => comment.manager)
   review_comments: ReviewComment[];
+
+  @ManyToMany(() => Project, (project: Project) => project.members)
+  assigned_projects: Project[];
 }

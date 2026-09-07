@@ -68,6 +68,20 @@ describe('ReportsController RBAC (e2e)', () => {
     review_comments: [],
   };
 
+  const mockDraftReportOwnedByMember2: Partial<WeeklyReport> = {
+    id: 201,
+    user_id: memberUser2.id,
+    user: memberUser2 as User,
+    week_start_date: new Date('2026-09-01'),
+    week_end_date: new Date('2026-09-07'),
+    status: ReportStatus.DRAFT,
+    current_version: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
+    versions: [],
+    review_comments: [],
+  };
+
   const mockUserRepository = {
     findOne: jest.fn().mockImplementation(({ where }) => {
       if (where.id === memberUser1.id) return Promise.resolve(memberUser1);
@@ -81,6 +95,9 @@ describe('ReportsController RBAC (e2e)', () => {
     findOne: jest.fn().mockImplementation(({ where }) => {
       if (where.id === mockReportOwnedByMember2.id) {
         return Promise.resolve(mockReportOwnedByMember2);
+      }
+      if (where.id === mockDraftReportOwnedByMember2.id) {
+        return Promise.resolve(mockDraftReportOwnedByMember2);
       }
       return Promise.resolve(null);
     }),
@@ -187,5 +204,56 @@ describe('ReportsController RBAC (e2e)', () => {
 
     expect(response.body.statusCode).toBe(403);
     expect(response.body.message).toContain('Access denied');
+  });
+
+  it('3. should return 403 Forbidden when a manager attempts to access a team member draft report', async () => {
+    const token = jwtService.sign({
+      sub: managerUser.id,
+      email: managerUser.email,
+      role: managerUser.role,
+    });
+
+    const response = await (request(app.getHttpServer()) as any)
+      .get(`/api/reports/${mockDraftReportOwnedByMember2.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403);
+
+    expect(response.body.statusCode).toBe(403);
+    expect(response.body.message).toContain('Draft reports are only visible to the author');
+  });
+
+  it('4. should allow a team member to access their own draft report', async () => {
+    const token = jwtService.sign({
+      sub: memberUser2.id,
+      email: memberUser2.email,
+      role: memberUser2.role,
+    });
+
+    const response = await (request(app.getHttpServer()) as any)
+      .get(`/api/reports/${mockDraftReportOwnedByMember2.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(response.body.id).toBe(mockDraftReportOwnedByMember2.id);
+    expect(response.body.status).toBe(ReportStatus.DRAFT);
+  });
+
+  it('5. should return 403 Forbidden when a manager attempts to edit a team member report content', async () => {
+    const token = jwtService.sign({
+      sub: managerUser.id,
+      email: managerUser.email,
+      role: managerUser.role,
+    });
+
+    const response = await (request(app.getHttpServer()) as any)
+      .patch(`/api/reports/${mockDraftReportOwnedByMember2.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        notes: 'Manager attempting to edit report content directly',
+      })
+      .expect(403);
+
+    expect(response.body.statusCode).toBe(403);
+    expect(response.body.message).toContain('You can only edit your own report');
   });
 });

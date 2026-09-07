@@ -19,6 +19,7 @@ async function seed() {
   await queryRunner.query('TRUNCATE TABLE review_comments;');
   await queryRunner.query('TRUNCATE TABLE report_versions;');
   await queryRunner.query('TRUNCATE TABLE weekly_reports;');
+  await queryRunner.query('TRUNCATE TABLE project_members;');
   await queryRunner.query('TRUNCATE TABLE projects;');
   await queryRunner.query('TRUNCATE TABLE users;');
   await queryRunner.query('SET FOREIGN_KEY_CHECKS = 1;');
@@ -73,14 +74,16 @@ async function seed() {
     }),
   );
 
-  console.log('📁 Creating Projects...');
+  console.log('📁 Creating Projects with Team Members assigned...');
   const projectRepository = AppDataSource.getRepository(Project);
+  const allTeamMembers = [alice, bob, charlie, diana];
 
   const projectClientA = await projectRepository.save(
     projectRepository.create({
       name: 'Client A',
       description: 'Client A Web Portal & E-Commerce platform integration',
       color_code: '#3B82F6',
+      members: allTeamMembers,
     }),
   );
 
@@ -89,6 +92,7 @@ async function seed() {
       name: 'Internal Tooling',
       description: 'Internal Automation & Developer Productivity Tooling',
       color_code: '#10B981',
+      members: allTeamMembers,
     }),
   );
 
@@ -97,6 +101,7 @@ async function seed() {
       name: 'Infrastructure',
       description: 'Cloud Infrastructure & CI/CD Deployment Pipeline',
       color_code: '#8B5CF6',
+      members: allTeamMembers,
     }),
   );
 
@@ -105,6 +110,7 @@ async function seed() {
       name: 'Mobile App',
       description: 'iOS & Android Cross-Platform Mobile Application',
       color_code: '#F59E0B',
+      members: allTeamMembers,
     }),
   );
 

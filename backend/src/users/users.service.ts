@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { User, UserRole } from '../entities/user.entity';
 import { WeeklyReport, ReportStatus } from '../entities/weekly-report.entity';
 
@@ -18,13 +18,13 @@ export class UsersService {
       order: { name: 'ASC' },
     });
 
-    // Remove passwords & calculate summary stats per user
+    // Remove passwords & calculate summary stats per user (excluding drafts)
     const result = await Promise.all(
       users.map(async (u) => {
         const { password_hash, ...userWithoutPassword } = u;
 
         const reports = await this.reportRepository.find({
-          where: { user_id: u.id },
+          where: { user_id: u.id, status: Not(ReportStatus.DRAFT) },
           relations: ['project', 'versions'],
         });
 
@@ -32,7 +32,7 @@ export class UsersService {
         const approvedCount = reports.filter((r) => r.status === ReportStatus.APPROVED).length;
         const needsCorrectionCount = reports.filter((r) => r.status === ReportStatus.NEEDS_CORRECTION).length;
         const submittedCount = reports.filter((r) => r.status === ReportStatus.SUBMITTED).length;
-        const draftCount = reports.filter((r) => r.status === ReportStatus.DRAFT).length;
+        const draftCount = 0;
 
         // Compliance rate: percentage of reports submitted/approved vs total expected or submitted
         const complianceRate = totalReports > 0 ? Math.round(((approvedCount + submittedCount) / totalReports) * 100) : 100;
@@ -66,7 +66,7 @@ export class UsersService {
     const { password_hash, ...userWithoutPassword } = user;
 
     const reports = await this.reportRepository.find({
-      where: { user_id: user.id },
+      where: { user_id: user.id, status: Not(ReportStatus.DRAFT) },
       relations: ['project', 'versions', 'review_comments', 'review_comments.manager'],
       order: { week_start_date: 'DESC' },
     });
@@ -83,7 +83,7 @@ export class UsersService {
     const approvedCount = reports.filter((r) => r.status === ReportStatus.APPROVED).length;
     const needsCorrectionCount = reports.filter((r) => r.status === ReportStatus.NEEDS_CORRECTION).length;
     const submittedCount = reports.filter((r) => r.status === ReportStatus.SUBMITTED).length;
-    const draftCount = reports.filter((r) => r.status === ReportStatus.DRAFT).length;
+    const draftCount = 0;
 
     const complianceRate = totalReports > 0 ? Math.round(((approvedCount + submittedCount) / totalReports) * 100) : 100;
 
