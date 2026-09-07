@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI } from '@google/genai';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { WeeklyReport } from '../entities/weekly-report.entity';
+import { Repository, Not } from 'typeorm';
+import { WeeklyReport, ReportStatus } from '../entities/weekly-report.entity';
 import { ReportVersion } from '../entities/report-version.entity';
 
 @Injectable()
@@ -42,8 +42,11 @@ export class AiService {
       }
     }
 
-    // 1. Fetch recent reports (submitted, approved, or needs_correction) with all version context
+    // 1. Fetch recent reports (submitted, approved, or needs_correction) with all version context (excluding drafts)
     const recentReports = await this.reportRepository.find({
+      where: {
+        status: Not(ReportStatus.DRAFT),
+      },
       relations: ['user', 'project', 'versions', 'review_comments', 'review_comments.manager'],
       order: {
         created_at: 'DESC',

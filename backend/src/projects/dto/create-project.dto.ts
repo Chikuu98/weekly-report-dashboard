@@ -30,4 +30,12 @@ export class CreateProjectDto {
     message: 'color_code must be a valid hex color code (e.g. #3B82F6)',
   })
   color_code?: string;
+
+  @ApiPropertyOptional({
+    example: [1, 2],
+    description: 'Array of user IDs assigned to this project',
+    type: [Number],
+  })
+  @IsOptional()
+  member_ids?: number[];
 }

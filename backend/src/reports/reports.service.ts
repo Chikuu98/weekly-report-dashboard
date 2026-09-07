@@ -88,7 +88,7 @@ export class ReportsService {
       throw new NotFoundException(`Report with ID ${id} not found`);
     }
 
-    if (user.role === UserRole.TEAM_MEMBER && report.user_id !== user.id) {
+    if (report.user_id !== user.id) {
       throw new ForbiddenException('Forbidden resource: You can only edit your own report');
     }
 
@@ -183,7 +183,7 @@ export class ReportsService {
       throw new NotFoundException(`Report with ID ${id} not found`);
     }
 
-    if (user.role === UserRole.TEAM_MEMBER && report.user_id !== user.id) {
+    if (report.user_id !== user.id) {
       throw new ForbiddenException('Forbidden resource: You can only submit your own report');
     }
 
@@ -347,6 +347,10 @@ export class ReportsService {
       throw new ForbiddenException('Forbidden resource: You cannot view another user\'s report');
     }
 
+    if (report.status === ReportStatus.DRAFT && report.user_id !== user.id) {
+      throw new ForbiddenException('Forbidden resource: Draft reports are only visible to the author');
+    }
+
     return report;
   }
 
@@ -368,7 +372,8 @@ export class ReportsService {
       .leftJoinAndSelect('report.project', 'project')
       .leftJoinAndSelect('report.versions', 'versions')
       .leftJoinAndSelect('report.review_comments', 'review_comments')
-      .leftJoinAndSelect('review_comments.manager', 'manager');
+      .leftJoinAndSelect('review_comments.manager', 'manager')
+      .where('report.status != :draftStatus', { draftStatus: ReportStatus.DRAFT });
 
     if (query.user_id) {
       qb.andWhere('report.user_id = :userId', { userId: query.user_id });

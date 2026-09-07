@@ -5,8 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { WeeklyReport } from './weekly-report.entity';
+import { User } from './user.entity';
 
 @Entity('projects')
 export class Project {
@@ -30,6 +33,14 @@ export class Project {
 
   @OneToMany(() => WeeklyReport, (report: WeeklyReport) => report.project)
   reports: WeeklyReport[];
+
+  @ManyToMany(() => User, (user: User) => user.assigned_projects)
+  @JoinTable({
+    name: 'project_members',
+    joinColumn: { name: 'project_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  members: User[];
 
   reports_count?: number;
 }

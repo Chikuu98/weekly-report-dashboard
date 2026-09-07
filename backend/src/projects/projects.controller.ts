@@ -16,7 +16,8 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../entities/user.entity';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { User, UserRole } from '../entities/user.entity';
 
 @ApiTags('Projects')
 @ApiBearerAuth('JWT-auth')
@@ -25,12 +26,12 @@ import { UserRole } from '../entities/user.entity';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  @ApiOperation({ summary: 'List all projects (All authenticated users)' })
+  @ApiOperation({ summary: 'List all projects (Filtered for Team Members, All for Managers)' })
   @ApiResponse({ status: 200, description: 'Returns array of projects.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @Get()
-  async findAll() {
-    return this.projectsService.findAll();
+  async findAll(@CurrentUser() user: User) {
+    return this.projectsService.findAll(user);
   }
 
   @ApiOperation({ summary: 'Get single project by ID' })
