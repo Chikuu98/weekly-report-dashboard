@@ -55,6 +55,27 @@ Ensure you have the following installed on your machine:
 
 ---
 
+## 🗄️ Database Migrations
+
+TypeORM migration commands can be executed directly from the **root directory** using npm scripts:
+
+| Command | Description |
+| :--- | :--- |
+| `npm run migration:run` | Runs all pending database migrations against the configured MySQL database. |
+| `npm run migration:generate` | Automatically generates a new migration file based on schema changes in entities. |
+| `npm run migration:revert` | Reverts the last executed database migration. |
+| `npm run migration:create` | Creates a blank migration file skeleton in `backend/src/migrations`. |
+
+> **Note**: You can also run these commands directly inside the `backend` directory:
+> ```bash
+> cd backend
+> npm run migration:run
+> npm run migration:generate -- src/migrations/YourMigrationName
+> npm run migration:revert
+> ```
+
+---
+
 ## 🌱 Database Seeding
 
 To populate the MySQL database with initial test data (1 Manager, 4 Team Members, 4 Projects, and 16 past weekly reports spanning all statuses: Draft, Submitted, Needs Correction, Approved), run the seed script:
@@ -96,26 +117,6 @@ You can test all authentication (`/api/auth/register`, `/api/auth/login`, `/api/
 
 ---
 
-## 🗄️ Database Migrations
-
-TypeORM migration commands can be executed directly from the **root directory** using npm scripts:
-
-| Command | Description |
-| :--- | :--- |
-| `npm run migration:run` | Runs all pending database migrations against the configured MySQL database. |
-| `npm run migration:generate` | Automatically generates a new migration file based on schema changes in entities. |
-| `npm run migration:revert` | Reverts the last executed database migration. |
-| `npm run migration:create` | Creates a blank migration file skeleton in `backend/src/migrations`. |
-
-> **Note**: You can also run these commands directly inside the `backend` directory:
-> ```bash
-> cd backend
-> npm run migration:run
-> npm run migration:generate -- src/migrations/YourMigrationName
-> npm run migration:revert
-> ```
-
----
 
 ## 💻 Running the Application
 
@@ -141,7 +142,7 @@ npm run dev
 
 ## 🤖 AI Chat Assistant (Bonus Feature)
 
-The application integrates an AI-powered conversational engineering assistant using Google's `@google/genai` unified SDK and the `gemini-2.5-flash` model.
+The application integrates an AI-powered conversational engineering assistant using Google's `@google/genai` unified SDK and the `gemini-3.6-flash` model.
 
 ### Features
 - **Conversational Q&A for Managers**: Ask natural language questions about team activity, velocity, recurring blockers, workload distribution, and milestone achievements.
