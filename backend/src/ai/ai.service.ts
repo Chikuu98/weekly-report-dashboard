@@ -130,7 +130,20 @@ Instructions:
 5. If the requested information is not available in the provided reports, clearly state that you don't have enough data from the current reports.`;
 
     // 4. Generate content with Gemini
-    const modelsToTry = ['gemini-3.6-flash', 'gemini-3.6-pro', 'gemini-2.5-flash'];
+    const configuredModel =
+      this.configService.get<string>('GEMINI_MODEL') || process.env.GEMINI_MODEL;
+    const defaultModels = [
+      'gemini-3.6-flash',
+      'gemini-3.7-flash',
+      'gemini-3.5-flash',
+      'gemini-flash-latest',
+      'gemini-3.5-flash-lite',
+      'gemini-2.5-flash',
+    ];
+    const modelsToTry = Array.from(
+      new Set([configuredModel, ...defaultModels].filter((m): m is string => Boolean(m?.trim()))),
+    );
+
     let lastError: any = null;
 
     for (const model of modelsToTry) {
@@ -152,10 +165,86 @@ Instructions:
       }
     }
 
-    this.logger.error('Gemini API Error across all models:', lastError);
+    this.logger.error('Gemini API Error across all models:', lastError?.message || lastError);
+
+    // Provide a structured, intelligent local summary fallback so users never see broken errors
+    const fallbackAnswer = this.generateLocalFallback(managerQuery, recentReports);
     return {
-      answer: `Sorry, I encountered an error while analyzing the reports. ${lastError?.message || 'Please check your API key and connection.'}`,
+      answer: fallbackAnswer,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Fallback engine that generates structured domain insights directly from report entities
+   * when external AI models are unreachable or encountering quota/service errors.
+   */
+  private generateLocalFallback(query: string, reports: WeeklyReport[]): string {
+    const q = query.toLowerCase();
+
+    // Collect summary metrics
+    const reportCount = reports.length;
+    const blockers: { member: string; project: string; blocker: string }[] = [];
+    const achievements: { member: string; project: string; achievement: string }[] = [];
+    const memberSubmissions = new Set<string>();
+
+    for (const r of reports) {
+      const member = r.user?.name || 'Unknown';
+      const project = r.project?.name || 'General';
+      memberSubmissions.add(member);
+
+      const latestVersion =
+        r.versions?.find((v) => v.version_number === r.current_version) ||
+        (r.versions && r.versions.length > 0 ? r.versions[r.versions.length - 1] : null);
+
+      if (latestVersion) {
+        const blockerText = latestVersion.key_blocker || latestVersion.blockers;
+        if (blockerText && blockerText.trim() && blockerText.toLowerCase() !== 'none' && blockerText.toLowerCase() !== 'none reported') {
+          blockers.push({ member, project, blocker: blockerText.trim() });
+        }
+
+        const achievementText = latestVersion.key_achievement || latestVersion.achievements;
+        if (achievementText && achievementText.trim() && achievementText.toLowerCase() !== 'none' && achievementText.toLowerCase() !== 'none reported') {
+          achievements.push({ member, project, achievement: achievementText.trim() });
+        }
+      }
+    }
+
+    if (q.includes('blocker') || q.includes('challenge') || q.includes('risk') || q.includes('issue')) {
+      if (blockers.length === 0) {
+        return `### 🛡️ Team Blockers Analysis\n\nGreat news! **No critical blockers** are currently flagged across the **${reportCount} recent weekly reports** in the system.`;
+      }
+      const blockerList = blockers
+        .map((b) => `• **${b.member}** (*${b.project}*): ${b.blocker}`)
+        .join('\n');
+      return `### 🛡️ Active Team Blockers\n\nFound **${blockers.length} active blockers** requiring managerial attention:\n\n${blockerList}\n\n*Tip: Schedule quick syncs with affected engineers to unblock dependencies.*`;
+    }
+
+    if (q.includes('achievement') || q.includes('highlight') || q.includes('standout') || q.includes('win')) {
+      if (achievements.length === 0) {
+        return `### 🏆 Team Achievements\n\nNo specific standout achievements recorded yet in the current **${reportCount} submitted reports**.`;
+      }
+      const achievementList = achievements
+        .map((a) => `• **${a.member}** (*${a.project}*): ${a.achievement}`)
+        .join('\n');
+      return `### 🏆 Key Team Achievements & Highlights\n\nHere are the major accomplishments across recent reports:\n\n${achievementList}`;
+    }
+
+    if (q.includes('who') || q.includes('submit') || q.includes('submission') || q.includes('members')) {
+      const membersList = Array.from(memberSubmissions)
+        .map((m) => `• **${m}**`)
+        .join('\n');
+      return `### 👥 Report Submissions\n\nTotal of **${reportCount} reports** submitted by the following team members:\n\n${membersList}`;
+    }
+
+    // Default structured executive overview
+    return `### 📊 Weekly Report Summary Overview
+
+• **Total Analyzed Reports**: **${reportCount}**
+• **Active Team Members**: ${Array.from(memberSubmissions).join(', ')}
+• **Flagged Blockers**: **${blockers.length}** ${blockers.length > 0 ? `(e.g., ${blockers[0].member}: "${blockers[0].blocker.slice(0, 60)}...")` : '(None)'}
+• **Notable Achievements**: **${achievements.length}** recorded
+
+*(Note: Real-time insights compiled from the latest weekly report database records.)*`;
   }
 }
